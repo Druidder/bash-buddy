@@ -42,7 +42,7 @@ Options:
     -h, --help        Display this help message
 
 Examples:
-    $SCRIPT_NAME                    # Format all changed .tf files
+    $SCRIPT_NAME                   # Format all changed .tf files
     $SCRIPT_NAME --dry-run         # Show what would be formatted
     $SCRIPT_NAME --verbose         # Show detailed output
 
@@ -92,6 +92,12 @@ get_changed_files() {
     while IFS= read -r -d '' file; do
         changed_files+=("$file")
     done < <(git diff --name-only --diff-filter=ACM -z | grep -z '\.tf$' || true)
+
+    while IFS= read -r -d '' file; do
+        if [[ "$file" == *.tf ]]; then
+            changed_files+=("$file")
+        fi
+    done < <(git ls-files --others --exclude-standard -z || true)
     
     if [[ ${#changed_files[@]} -eq 0 ]]; then
         echo ""
